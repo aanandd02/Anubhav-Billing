@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anubhav Medical Bill System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <div class="brand">
+        <div>
+          <h1>Anubhav Medical Billing</h1>
+          <p>PDF Invoice Generator</p>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <div class="toolbar-user" id="toolbarUser">Administrator</div>
+        <button class="btn btn-muted" onclick="handleLogout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Store & Bill Details</h2>
+        <div class="grid grid-3">
+          <label>Store Name <input id="storeName" value="KRISHNA MEDICAL STORE" /></label>
+          <label>GSTIN <input id="gstin" value="09FICPP4622N1ZR" /></label>
+          <label>Bill No <input id="billNo" placeholder="KMS00226" /></label>
+
+          <label>Tagline <input id="storeTagline" value="Shop No. CP-1, LGF-22, Jeevan Plaza" /></label>
+          <label>Drug License 1 <input id="drugLicense1" value="UP32200005490" /></label>
+          <label>Bill Date <input id="billDate" placeholder="04/01/2026" /></label>
+
+          <label>Address <input id="storeAddress" value="Vipul Khand-2, Gomti Nagar, Lucknow - 226010" /></label>
+          <label>Drug License 2 <input id="drugLicense2" value="UP32210005485" /></label>
+          <label>Store Phone <input id="storePhone" value="Phone: +91 7355031666" /></label>
+
+          <label>Store Email <input id="storeEmail" value="Email: krishnamedicalstoregtl@gmail.com" /></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Patient Details</h2>
+        <div class="grid grid-4">
+          <label>Patient Name <input id="patientName" /></label>
+          <label>Patient Address <input id="patientAddress" /></label>
+          <label>Patient Mobile <input id="patientMobile" /></label>
+          <label>Doctor Name <input id="doctorName" /></label>
+        </div>
+        <div class="grid grid-1 prescription-wrap">
+          <label>Dawa / Prescription <textarea id="prescription" rows="3" placeholder="e.g. Dolo 650 - 1-0-1 for 3 days"></textarea></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="line-items-head">
+          <h2>Line Items</h2>
+          <div class="actions">
+            <button class="btn" onclick="addItemRow()">+ Add Row</button>
+            <button class="btn btn-muted" onclick="resetForm()">Reset</button>
+            <button class="btn btn-primary" id="generateBtn" onclick="generatePDF()">Generate PDF</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Sno</th>
+                <th>Product Name</th>
+                <th>Packing</th>
+                <th>Batch No.</th>
+                <th>Exp.</th>
+                <th>Quantity</th>
+                <th>M.R.P.</th>
+                <th>Disc.%</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="total-preview">
+          <span>Computed Total:</span>
+          <strong id="computedTotal">0.00</strong>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/app.js"></script>
+  </body>
+</html>
