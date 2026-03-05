@@ -20,16 +20,16 @@ async function loadUser() {
 
 function getRowHTML(rowNo) {
   return `
-    <td class="center row-no">${rowNo}</td>
-    <td><input name="productName" /></td>
-    <td><input name="packing" /></td>
-    <td><input name="batchNo" /></td>
-    <td><input name="exp" placeholder="MM/YY" /></td>
-    <td><input name="quantity" type="number" min="0" step="0.01" /></td>
-    <td><input name="mrp" type="number" min="0" step="0.01" /></td>
-    <td><input name="discount" type="number" min="0" step="0.01" /></td>
-    <td><input name="amount" type="number" min="0" step="0.01" /></td>
-    <td><button class="btn btn-sm" type="button" onclick="removeRow(this)">Remove</button></td>
+    <td class="center row-no" data-label="Sno">${rowNo}</td>
+    <td data-label="Product Name"><input name="productName" /></td>
+    <td data-label="Packing"><input name="packing" /></td>
+    <td data-label="Batch No."><input name="batchNo" /></td>
+    <td data-label="Exp."><input name="exp" placeholder="MM/YY" /></td>
+    <td data-label="Quantity"><input name="quantity" type="number" min="0" step="0.01" /></td>
+    <td data-label="M.R.P."><input name="mrp" type="number" min="0" step="0.01" /></td>
+    <td data-label="Disc.%"><input name="discount" type="number" min="0" step="0.01" /></td>
+    <td data-label="Amount"><input name="amount" type="number" min="0" step="0.01" /></td>
+    <td data-label="Action"><button class="btn btn-sm" type="button" onclick="removeRow(this)">Remove</button></td>
   `;
 }
 

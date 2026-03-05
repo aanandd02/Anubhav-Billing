@@ -26,6 +26,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   padding: 12px 18px;
   background: #0f172a;
   color: #f8fafc;
@@ -40,7 +41,7 @@ body {
 
 .brand h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: clamp(16px, 2.1vw, 18px);
 }
 
 .brand p {
@@ -53,6 +54,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .toolbar-user {
@@ -107,28 +109,26 @@ label {
 }
 
 input {
-  height: 36px;
+  height: 38px;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: 14px;
+  width: 100%;
 }
 
 textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 13px;
+  padding: 10px;
+  font-size: 14px;
   font-family: inherit;
   resize: vertical;
   min-height: 78px;
+  width: 100%;
 }
 
-input:focus {
-  outline: 2px solid rgba(15, 118, 110, 0.2);
-  border-color: var(--primary);
-}
-
+input:focus,
 textarea:focus {
   outline: 2px solid rgba(15, 118, 110, 0.2);
   border-color: var(--primary);
@@ -156,12 +156,13 @@ textarea:focus {
   border: 1px solid #cbd5e1;
   background: #fff;
   color: #0f172a;
-  height: 34px;
+  height: 36px;
   padding: 0 12px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+  touch-action: manipulation;
 }
 
 .btn:hover {
@@ -183,7 +184,7 @@ textarea:focus {
 }
 
 .btn-sm {
-  height: 28px;
+  height: 30px;
   font-size: 12px;
 }
 
@@ -223,7 +224,7 @@ tbody tr + tr td {
 
 tbody td input {
   width: 100%;
-  height: 30px;
+  height: 32px;
   border-radius: 6px;
 }
 
@@ -239,10 +240,15 @@ tbody td input {
   font-size: 15px;
 }
 
-@media (max-width: 980px) {
-  .grid-3,
+@media (max-width: 1200px) {
   .grid-4 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
   }
 
   .line-items-head {
@@ -253,6 +259,131 @@ tbody td input {
   .toolbar {
     flex-direction: column;
     align-items: flex-start;
+    padding: 12px 14px;
+  }
+
+  .container {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 760px) {
+  .container {
+    padding: 0 10px 16px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions .btn {
+    flex: 1 1 100%;
+    height: 40px;
+  }
+
+  .table-wrap {
+    border: none;
+    overflow: visible;
+  }
+
+  table {
+    min-width: 0;
+    display: block;
+  }
+
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  tbody {
+    display: block;
+  }
+
+  tbody tr {
+    display: block;
+    border: 1px solid #dbe3ec;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  tbody tr + tr td {
+    border-top: none;
+  }
+
+  tbody td {
+    display: grid;
+    grid-template-columns: minmax(86px, 110px) 1fr;
+    align-items: center;
     gap: 8px;
+    padding: 8px 10px;
+    border-top: 1px solid #edf2f7;
+  }
+
+  tbody td:first-child {
+    border-top: none;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  tbody td.center {
+    text-align: left;
+  }
+
+  tbody td input,
+  tbody td .btn {
+    width: 100%;
+    min-height: 36px;
+  }
+
+  .btn-sm {
+    height: 36px;
+  }
+
+  .total-preview {
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    padding: 2px 4px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  input,
+  textarea {
+    font-size: 16px;
+  }
+
+  .brand p,
+  .toolbar-user {
+    font-size: 11px;
+  }
+
+  .toolbar-right {
+    width: 100%;
+    justify-content: space-between;
   }
 }

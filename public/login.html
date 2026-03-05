@@ -17,10 +17,11 @@
 
       body {
         font-family: "Inter", sans-serif;
-        min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         background: #f8f9fb;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       .login-left {
@@ -127,7 +128,7 @@
       }
 
       .login-right {
-        width: 480px;
+        width: min(480px, 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -229,6 +230,7 @@
 
       .form-group input {
         width: 100%;
+        min-height: 48px;
         padding: 13px 16px 13px 44px;
         border: 1.5px solid #e5e7eb;
         border-radius: 10px;
@@ -350,8 +352,8 @@
           flex-direction: column;
         }
         .login-left {
-          padding: 40px 30px;
-          min-height: auto;
+          padding: 34px 24px;
+          min-height: 35dvh;
         }
         .left-brand {
           font-size: 26px;
@@ -371,7 +373,8 @@
 
       @media (max-width: 480px) {
         .login-left {
-          padding: 28px 20px;
+          padding: 24px 18px;
+          min-height: 30dvh;
         }
         .left-brand {
           font-size: 22px;
@@ -382,7 +385,17 @@
           margin-bottom: 12px;
         }
         .login-right {
-          padding: 24px 20px;
+          padding: 20px 16px max(16px, env(safe-area-inset-bottom));
+        }
+        .login-form-wrap {
+          max-width: 100%;
+        }
+        .form-group input {
+          font-size: 16px;
+        }
+        .btn-signin {
+          min-height: 48px;
+          font-size: 16px;
         }
         .form-header h1 {
           font-size: 22px;
