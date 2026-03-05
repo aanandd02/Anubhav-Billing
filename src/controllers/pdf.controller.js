@@ -1,53 +1,47 @@
 const { chromium } = require("playwright");
-const { generateMedicalBillHTML } = require("../templates/medical-bill.template");
+const { generateMedicalBillHTML } = require("../utils/billHtml");
 
 async function generatePDF(req, res) {
-  try {
-    const formData = req.body || {};
+  let browser;
 
-    const browser = await chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
+  try {
+    const data = req.body;
+
+    const html = generateMedicalBillHTML(data);
+
+    browser = await chromium.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
     const page = await browser.newPage();
-    const htmlContent = generateMedicalBillHTML(formData);
 
-    await page.setContent(htmlContent, {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
+    await page.setContent(html, {
+      waitUntil: "networkidle"
     });
 
     const pdfBuffer = await page.pdf({
       format: "A4",
-      printBackground: true,
-      margin: {
-        top: "0mm",
-        right: "0mm",
-        bottom: "0mm",
-        left: "0mm",
-      },
+      printBackground: true
     });
 
-    await browser.close();
-
-    const safeBillNo = String(formData.billNo || "invoice").replace(/[^a-zA-Z0-9-_]/g, "");
-    const filename = `medical-bill-${safeBillNo || "invoice"}-${Date.now()}.pdf`;
-
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=\"${filename}\"`,
-      "Content-Length": pdfBuffer.length,
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=bill-${Date.now()}.pdf`
+    );
 
     res.send(pdfBuffer);
+
   } catch (error) {
     console.error("PDF generation error:", error);
-    res.status(500).json({ error: "Failed to generate PDF" });
+    res.status(500).json({
+      error: "PDF generation failed"
+    });
+
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
