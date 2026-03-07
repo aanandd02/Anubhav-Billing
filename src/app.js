@@ -14,6 +14,7 @@ app.use(session({
   secret: 'adarsh-billing-secret-key-2026',
   resave: false,
   saveUninitialized: false,
+  rolling: true,
   name: 'adarsh.sid',
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
