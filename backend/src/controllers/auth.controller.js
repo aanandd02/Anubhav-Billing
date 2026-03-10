@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const ADMIN = {
   username: process.env.ADMIN_USERNAME,
@@ -6,11 +7,16 @@ const ADMIN = {
   name: process.env.ADMIN_NAME,
 };
 
-if (!ADMIN.username || !ADMIN.password) {
-  throw new Error('Missing ADMIN_USERNAME or ADMIN_PASSWORD in environment variables.');
-}
+const adminConfigured = Boolean(ADMIN.username && ADMIN.password);
 
 function login(req, res) {
+  if (!adminConfigured) {
+    console.error('Missing ADMIN_USERNAME or ADMIN_PASSWORD in environment variables.');
+    return res
+      .status(500)
+      .json({ error: 'Server not configured: set ADMIN_USERNAME and ADMIN_PASSWORD.' });
+  }
+
   const { username, password } = req.body;
 
   if (!username || !password) {
