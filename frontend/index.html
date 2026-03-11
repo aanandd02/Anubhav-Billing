@@ -3,11 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1d4ed8" />
+    <meta name="theme-color" content="#0f243f" />
+    <link rel="icon" type="image/png" href="/Anubhav.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <title>Anubhav Medical Billing</title>
-<script>
-  window.__API_BASE__ = "https://anubhav-billing-1jso.onrender.com";
-</script>
+    <script>
+      const host = window.location.hostname;
+      // Match backend host to the page host in dev to keep cookies first-party.
+      window.__API_BASE__ =
+        host === 'localhost' || host === '127.0.0.1'
+          ? `http://${host}:3000`
+          : 'https://anubhav-billing-1jso.onrender.com';
+    </script>
   </head>
   <body>
     <div id="root"></div>

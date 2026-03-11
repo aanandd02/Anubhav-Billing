@@ -49,8 +49,7 @@ function Login() {
       <div className="login-left">
         <div className="left-content">
           <div className="left-chant">जय श्री राम</div>
-          <div className="left-brand">Anubhav Billing</div>
-          <div className="left-tagline">Medical PDF Invoices</div>
+          <img src="/Anubhav.png" alt="Anubhav Billing logo" className="login-logo" />
         </div>
       </div>
 

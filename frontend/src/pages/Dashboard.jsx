@@ -223,16 +223,17 @@ function Dashboard() {
     <div>
       <header className="toolbar">
         <div className="brand">
-          <div>
+          <img src="/Anubhav.png" alt="Anubhav Billing logo" className="brand-logo" />
+          <div className="brand-text">
             <h1>Anubhav Medical Billing</h1>
             <p>PDF Invoice Generator</p>
           </div>
         </div>
         <div className="toolbar-right">
-          <button className="btn" onClick={() => setStorePanelOpen(true)}>
-            Store &amp; Bill
+          <button className="btn btn-store" onClick={() => setStorePanelOpen(true)}>
+            Store Details
           </button>
-          <button className="btn btn-muted" onClick={handleLogout}>
+          <button className="btn btn-logout" onClick={handleLogout}>
             Sign Out
           </button>
         </div>

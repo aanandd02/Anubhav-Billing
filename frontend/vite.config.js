@@ -3,23 +3,25 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const appName = 'Anubhav Medical Billing';
+const themeColor = '#0f243f';
+const backgroundColor = '#0b1a30';
 
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icon.svg'],
+      includeAssets: ['Anubhav.png', 'icons/icon-192.png', 'icons/icon-512.png'],
       devOptions: {
-        enabled: true,
-        type: 'module' // keeps HMR working while serving the SW in dev
+        enabled: false,
+        type: 'module' // keep available to flip on later without HMR issues
       },
       manifest: {
         name: appName,
         short_name: 'Billing',
         description: 'Installable PWA for Anubhav Medical Billing PDF generator.',
-        theme_color: '#1d4ed8',
-        background_color: '#ffffff',
+        theme_color: themeColor,
+        background_color: backgroundColor,
         display: 'standalone',
         start_url: '/',
         scope: '/',
@@ -35,11 +37,6 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
-          },
-          {
-            src: '/icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml'
           }
         ]
       },
@@ -47,6 +44,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,json,txt}'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         runtimeCaching: [
           {
             // Never cache authenticated API calls.
