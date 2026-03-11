@@ -18,7 +18,7 @@ export default defineConfig({
         name: appName,
         short_name: 'Billing',
         description: 'Installable PWA for Anubhav Medical Billing PDF generator.',
-        theme_color: '#0f766e',
+        theme_color: '#1d4ed8',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',

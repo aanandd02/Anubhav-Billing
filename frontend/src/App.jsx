@@ -40,7 +40,7 @@ function InstallPrompt() {
         right: '16px',
         bottom: '16px',
         zIndex: 50,
-        background: '#0f766e',
+        background: '#1d4ed8',
         color: '#fff',
         border: 'none',
         borderRadius: '999px',
