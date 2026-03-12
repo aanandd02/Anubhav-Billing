@@ -20,17 +20,15 @@ function useServerStatus() {
         const timeout = setTimeout(() => controller.abort(), 4000);
         const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
         clearTimeout(timeout);
-        if (res.ok) {
-          if (!cancelled) setStatus('ready');
-          return;
-        }
+        if (!cancelled) setStatus(res.ok ? 'ready' : 'waiting');
       } catch (_err) {
-        // Ignore and retry below.
+        if (!cancelled) setStatus('waiting');
       }
 
       if (cancelled) return;
-      setStatus('waiting');
-      timer = setTimeout(ping, 2500);
+      // Keep pinging every 2.5s until ready, then every 8s to catch drops.
+      const nextDelay = status === 'ready' ? 8000 : 2500;
+      timer = setTimeout(ping, nextDelay);
     }
 
     ping();
@@ -38,19 +36,19 @@ function useServerStatus() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, []);
+  }, [status]);
 
   return status;
 }
 
-function WaitingScreen({ message = 'Server start ho raha hai, kripya kuch der rukें…' }) {
+function WaitingScreen({ message = 'Server is starting, please wait a moment…' }) {
   return (
     <div className="server-wait-shell">
       <div className="server-wait-card">
         <div className="ping-dot" />
-        <h2>Server boot हो रहा है</h2>
+        <h2>Server is booting</h2>
         <p>{message}</p>
-        <small>जैसे ही server ready होगा, आपको login page पर ले जाया जाएगा।</small>
+        <small>As soon as the server is ready, we’ll take you to the login page.</small>
       </div>
     </div>
   );
@@ -67,7 +65,6 @@ function ProtectedDashboard() {
     let retryTimer;
 
     async function checkSession() {
-      if (cancelled) return;
       try {
         const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
         if (cancelled) return;
@@ -98,7 +95,45 @@ function ProtectedDashboard() {
 
 function LoginGate() {
   const status = useServerStatus();
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
+    if (status !== 'ready') return;
+    let cancelled = false;
+    let retryTimer;
+
+    async function checkSession() {
+      if (cancelled) return;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+        if (cancelled) return;
+        if (res.ok) {
+          setAuthed(true);
+          setAuthChecked(true);
+          navigate('/', { replace: true });
+          return;
+        }
+      } catch (_err) {
+        // ignore and retry
+      }
+      if (cancelled) return;
+      setAuthed(false);
+      setAuthChecked(true);
+      retryTimer = setTimeout(checkSession, 1500);
+    }
+
+    checkSession();
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [status, navigate]);
+
   if (status !== 'ready') return <WaitingScreen />;
+  if (!authChecked) return <WaitingScreen message="Session check हो रहा है…" />;
+  if (authed) return null; // navigate will have triggered
   return <Login />;
 }
 
