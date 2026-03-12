@@ -89,7 +89,7 @@ function ProtectedDashboard() {
   }, [status, navigate]);
 
   if (status !== 'ready') return <WaitingScreen />;
-  if (!authReady) return <WaitingScreen message="Session check हो रहा है…" />;
+  if (!authReady) return <WaitingScreen message="Checking session…" />;
   return <Dashboard />;
 }
 
@@ -132,7 +132,7 @@ function LoginGate() {
   }, [status, navigate]);
 
   if (status !== 'ready') return <WaitingScreen />;
-  if (!authChecked) return <WaitingScreen message="Session check हो रहा है…" />;
+  if (!authChecked) return <WaitingScreen message="Checking session…" />;
   if (authed) return null; // navigate will have triggered
   return <Login />;
 }
