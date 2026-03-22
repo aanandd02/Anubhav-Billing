@@ -1,4 +1,8 @@
 const { chromium } = require("playwright");
+const QRCode = require("qrcode");
+const mongoose = require("mongoose");
+const Bill = require("../models/Bill");
+const Patient = require("../models/Patient");
 const { generateMedicalBillHTML } = require("../templates/medical-bill.template");
 
 async function generatePDF(req, res) {
@@ -6,6 +10,57 @@ async function generatePDF(req, res) {
 
   try {
     const data = req.body;
+
+    // 1. Generate UPI QR Code (if an amount is provided/calculated)
+    // The frontend should ideally send `grandTotal` and we use that for the QR.
+    let upiQrCodeUrl = "";
+    const upiId = process.env.UPI_ID || "7398188195@paytm"; // Default fallback
+    const storeName = data.storeName || "KRISHNA MEDICAL STORE";
+    const amount = data.grandTotal ? Number(data.grandTotal).toFixed(2) : "0.00"; 
+    
+    // Only generate QR if amount > 0 or if we want to default it without amount
+    const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(storeName)}&am=${amount}&cu=INR`;
+    try {
+      upiQrCodeUrl = await QRCode.toDataURL(upiString);
+      data.upiQrCodeUrl = upiQrCodeUrl;
+    } catch (err) {
+      console.error("QR Code generation failed:", err);
+    }
+
+    // 2. Save Bill to MongoDB (if connected)
+    if (mongoose.connection.readyState === 1 && data.patientName) {
+      try {
+        let patient = false;
+        if (data.patientMobile) {
+           patient = await Patient.findOne({ phone: data.patientMobile });
+        }
+        if (!patient) {
+          patient = await Patient.create({
+            name: data.patientName,
+            phone: data.patientMobile || "",
+            address: data.patientAddress || ""
+          });
+        }
+
+        const invoiceNumber = data.billNo || `INV-${Date.now()}`;
+        await Bill.create({
+          invoiceNumber,
+          patient: patient._id,
+          items: (data.items || []).map(i => ({
+            name: i.productName || "Item",
+            quantity: Number(i.quantity) || 1,
+            price: Number(i.mrp) || 0,
+            total: Number(i.amount) || 0
+          })),
+          subtotal: Number(amount) || 0,
+          finalTotal: Number(amount) || 0,
+          upiQrCodeUrl,
+          createdBy: req.session?.user?.username || "Admin"
+        });
+      } catch (dbErr) {
+        console.error("Failed to save bill to DB:", dbErr.message);
+      }
+    }
 
     // Generate HTML
     const html = generateMedicalBillHTML(data);
@@ -54,12 +109,10 @@ async function generatePDF(req, res) {
 
   } catch (error) {
     console.error("PDF generation error:", error);
-
     return res.status(500).json({
       error: "PDF generation failed",
       message: error.message
     });
-
   } finally {
     if (browser) {
       await browser.close();
@@ -67,4 +120,21 @@ async function generatePDF(req, res) {
   }
 }
 
-module.exports = { generatePDF };
+async function getNextBillNumber(req, res) {
+  try {
+    const lastBill = await Bill.findOne().sort({ createdAt: -1 });
+    let nextNum = 1;
+    if (lastBill && lastBill.invoiceNumber) {
+      const match = lastBill.invoiceNumber.match(/\d+$/);
+      if (match) {
+        nextNum = parseInt(match[0], 10) + 1;
+      }
+    }
+    const nextInvoice = `KMS${String(nextNum).padStart(5, '0')}`;
+    res.json({ nextBillNo: nextInvoice });
+  } catch (error) {
+    res.json({ nextBillNo: `KMS${Date.now().toString().slice(-5)}` });
+  }
+}
+
+module.exports = { generatePDF, getNextBillNumber };

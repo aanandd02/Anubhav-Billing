@@ -201,7 +201,7 @@ function generateMedicalBillHTML(data) {
               <td class="c">${esc(item.exp)}</td>
               <td class="c">${esc(item.quantity)}</td>
               <td class="r">${esc(item.mrp)}</td>
-              <td class="r">${esc(item.discount)}</td>
+              <td class="r">${item.discount ? esc(item.discount) + '%' : ''}</td>
               <td class="r">${fmtAmount(net)}</td>
             </tr>
           `;
@@ -291,7 +291,7 @@ function generateMedicalBillHTML(data) {
               </div>
 
               <div class="sign-col">
-                <div class="store-sign">For ${esc(data.storeName || "KRISHNA MEDICAL STORE")}</div>
+                ${data.upiQrCodeUrl ? `<img src="${data.upiQrCodeUrl}" style="width: 44px; height: 44px; margin: 2px auto 0; display: block;" alt="Pay via UPI">` : ''}
                 <div class="signature">Authorised Signatory</div>
               </div>
 
@@ -316,15 +316,20 @@ function generateMedicalBillHTML(data) {
 
     body {
       margin: 0;
+      padding: 0;
       font-family: "Times New Roman", Times, serif;
       color: #111;
       font-size: 11.5px;
       background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .sheet {
       width: 210mm;
       min-height: 297mm;
+      margin: 0 auto;
       padding: 9mm 12mm 7mm;
       page-break-inside: avoid;
       position: relative;

@@ -70,14 +70,50 @@ function computeAmount(item) {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [form, setForm] = useState(DEFAULT_FORM);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem('invoice_form');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return DEFAULT_FORM;
+  });
   const [items, setItems] = useState(() => {
+    const saved = localStorage.getItem('invoice_items');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
     const base = Array.from({ length: 5 }, () => blankItem());
     return base;
   });
+
+  useEffect(() => {
+    localStorage.setItem('invoice_form', JSON.stringify(form));
+  }, [form]);
+
+  useEffect(() => {
+    localStorage.setItem('invoice_items', JSON.stringify(items));
+  }, [items]);
   const [userName, setUserName] = useState('Administrator');
   const [generating, setGenerating] = useState(false);
   const [storePanelOpen, setStorePanelOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState({});
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfBlob, setPdfBlob] = useState(null);
+  const [showPdfPopup, setShowPdfPopup] = useState(false);
+
+  const fetchNextBillNo = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/next-bill-number`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setForm(prev => ({ ...prev, billNo: data.nextBillNo }));
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  useEffect(() => {
+    fetchNextBillNo();
+  }, []);
 
   useEffect(() => {
     async function loadUser() {
@@ -147,6 +183,49 @@ function Dashboard() {
     );
   };
 
+  const handleExpChange = (idx, val) => {
+    let v = val.replace(/\D/g, '');
+    if (v.length > 4) v = v.substring(0, 4);
+    if (v.length >= 2) {
+      let mm = parseInt(v.substring(0, 2), 10);
+      if (mm > 12) mm = 12;
+      if (mm === 0) mm = 1;
+      let mmStr = mm.toString().padStart(2, '0');
+      if (v.length > 2) {
+        v = `${mmStr}/${v.substring(2)}`;
+      } else {
+        v = val.endsWith('/') ? `${mmStr}/` : mmStr;
+      }
+    }
+    updateItem(idx, 'exp', v);
+  };
+
+  const handleMedicineSearch = async (idx, query) => {
+    updateItem(idx, 'productName', query);
+    if (query.trim().length > 1) {
+      try {
+        const res = await fetch(`${API_BASE}/api/medicines/search?q=${query}`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(prev => ({ ...prev, [idx]: data }));
+        }
+      } catch (e) {
+        console.error("Search failed", e);
+      }
+    } else {
+      setSuggestions(prev => ({ ...prev, [idx]: [] }));
+    }
+  };
+
+  const selectMedicine = (idx, med) => {
+    updateItem(idx, 'productName', med.name);
+    updateItem(idx, 'mrp', med.price);
+    updateItem(idx, 'packing', med.packing || '10 T'); 
+    updateItem(idx, 'batchNo', med.batchNo || 'B-01');
+    updateItem(idx, 'exp', med.exp || '12/26');
+    setSuggestions(prev => ({ ...prev, [idx]: [] }));
+  };
+
   const addRow = () => setItems((prev) => [...prev, blankItem()]);
 
   const removeRow = (idx) => {
@@ -177,6 +256,7 @@ function Dashboard() {
     try {
       const payload = {
         ...form,
+        grandTotal: total.toFixed(2),
         items: items.map(({ manual, ...rest }) => rest)
       };
 
@@ -198,14 +278,9 @@ function Dashboard() {
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const fileName = `medical-bill-${payload.billNo || 'invoice'}.pdf`;
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      setPdfBlob(blob);
+      setPdfUrl(url);
+      setShowPdfPopup(true);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -213,10 +288,25 @@ function Dashboard() {
     }
   };
 
-  const handleReset = () => {
-    if (!window.confirm('Reset all fields?')) return;
+  const handleKeyDown = (e, idx) => {
+    if (!suggestions[idx] || suggestions[idx].length === 0) return;
+    
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      e.preventDefault();
+      selectMedicine(idx, suggestions[idx][0]);
+    }
+  };
+
+  const handleReset = (force = false) => {
+    if (!force && !window.confirm('Reset all fields?')) return;
     setForm(DEFAULT_FORM);
-    setItems([blankItem()]);
+    setItems(Array.from({ length: 5 }, () => blankItem()));
+    setPdfUrl(null);
+    setPdfBlob(null);
+    setShowPdfPopup(false);
+    localStorage.removeItem('invoice_form');
+    localStorage.removeItem('invoice_items');
+    fetchNextBillNo();
   };
 
   return (
@@ -226,7 +316,7 @@ function Dashboard() {
           <img src="/Anubhav.png" alt="Anubhav Billing logo" className="brand-logo" />
           <div className="brand-text">
             <h1>Anubhav Medical Billing</h1>
-            <p>PDF Invoice Generator</p>
+            <p>VIP Production Build ✨</p>
           </div>
         </div>
         <div className="toolbar-right">
@@ -355,7 +445,7 @@ function Dashboard() {
               <input
                 value={form.patientMobile}
                 onChange={(e) => updateForm('patientMobile', e.target.value)}
-                placeholder="+91..."
+                placeholder="10 digit mobile"
               />
             </label>
             <label>
@@ -403,24 +493,37 @@ function Dashboard() {
               <h2>Dispensed Medicines</h2>
             </div>
             <div className="actions">
-              <button className="btn" onClick={addRow}>
-                + Add Row
-              </button>
-              <button className="btn btn-muted" onClick={handleReset}>
-                Reset
-              </button>
-              <button
-                className="btn btn-primary"
-                id="generateBtn"
-                onClick={handleGenerate}
-                disabled={generating}
-              >
-                {generating ? 'Generating...' : 'Generate PDF'}
-              </button>
+              {pdfUrl ? (
+                <>
+                  <button className="btn btn-primary" onClick={() => setShowPdfPopup(true)}>
+                    Show Document
+                  </button>
+                  <button className="btn btn-muted" onClick={() => handleReset(true)}>
+                    New Bill
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="btn" onClick={addRow}>
+                    + Add Row
+                  </button>
+                  <button className="btn btn-muted" onClick={handleReset}>
+                    Reset
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    id="generateBtn"
+                    onClick={handleGenerate}
+                    disabled={generating}
+                  >
+                    {generating ? 'Generating...' : 'Generate PDF'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="table-wrap">
+          <div className="table-wrap" style={{ overflow: 'visible', paddingBottom: '120px' }}>
             <table>
               <thead>
                 <tr>
@@ -442,14 +545,29 @@ function Dashboard() {
                     <td className="center row-no" data-label="Sno">
                       {idx + 1}
                     </td>
-                    <td data-label="Product Name">
+                    <td data-label="Product Name" style={{ position: 'relative' }}>
                       <input
                         name="productName"
+                        autoComplete="off"
                         value={item.productName}
-                        onChange={(e) =>
-                          updateItem(idx, 'productName', e.target.value)
-                        }
+                        onChange={(e) => handleMedicineSearch(idx, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, idx)}
                       />
+                      {suggestions[idx] && suggestions[idx].length > 0 && (
+                        <div style={{
+                          position: 'absolute', top: '100%', left: 0, minWidth: '100%', zIndex: 99999,
+                          background: '#fff', border: '1px solid #20A4F3', borderRadius: '4px',
+                          maxHeight: '180px', overflowY: 'auto', boxShadow: '0 8px 16px rgba(0,0,0,0.15)'
+                        }}>
+                          {suggestions[idx].map(med => (
+                            <div key={med._id} 
+                                 style={{ padding: '6px 10px', cursor: 'pointer', borderBottom: '1px solid #f1f1f1', fontSize: '13px' }}
+                                 onClick={() => selectMedicine(idx, med)}>
+                              <strong>{med.name}</strong> - ₹{med.price}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td data-label="Packing">
                       <input
@@ -474,7 +592,7 @@ function Dashboard() {
                         name="exp"
                         placeholder="MM/YY"
                         value={item.exp}
-                        onChange={(e) => updateItem(idx, 'exp', e.target.value)}
+                        onChange={(e) => handleExpChange(idx, e.target.value)}
                       />
                     </td>
                     <td data-label="Quantity">
@@ -482,7 +600,7 @@ function Dashboard() {
                         name="quantity"
                         type="number"
                         min="0"
-                        step="0.01"
+                        step="1"
                         value={item.quantity}
                         onChange={(e) =>
                           updateItem(idx, 'quantity', e.target.value)
@@ -499,17 +617,21 @@ function Dashboard() {
                         onChange={(e) => updateItem(idx, 'mrp', e.target.value)}
                       />
                     </td>
-                    <td data-label="Disc.%">
+                    <td data-label="Disc.%" style={{ position: 'relative' }}>
                       <input
                         name="discount"
                         type="number"
                         min="0"
-                        step="0.01"
+                        step="1"
                         value={item.discount}
                         onChange={(e) =>
                           updateItem(idx, 'discount', e.target.value)
                         }
+                        style={{ paddingRight: '20px' }}
                       />
+                      {item.discount && (
+                        <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '13px', pointerEvents: 'none', fontWeight: 600 }}>%</span>
+                      )}
                     </td>
                     <td data-label="Amount">
                       <input
@@ -544,6 +666,32 @@ function Dashboard() {
           </div>
         </section>
       </main>
+
+      {showPdfPopup && pdfUrl && (
+        <div className="pdf-popup-overlay">
+          <div className="pdf-popup-card">
+            <button className="pdf-popup-close" onClick={() => setShowPdfPopup(false)}>✕</button>
+            <div className="pdf-icon-wrapper">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="pdf-popup-title">PDF Generated Successfully!</h3>
+            <p className="pdf-popup-desc">Your invoice is ready to be downloaded or printed.</p>
+            <div className="pdf-popup-actions">
+              <a href={pdfUrl} download={`Medical-Bill-${form.billNo || 'invoice'}.pdf`} className="pdf-btn-download" onClick={() => setShowPdfPopup(false)}>
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download PDF
+              </a>
+              <button className="pdf-btn-new" onClick={() => { setShowPdfPopup(false); setPdfUrl(null); setPdfBlob(null); setForm(DEFAULT_FORM); fetchNextBillNo(); setItems(Array.from({ length: 5 }, () => blankItem())); }}>
+                Create New Bill
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
