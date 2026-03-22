@@ -292,7 +292,10 @@ function generateMedicalBillHTML(data) {
 
               <div class="sign-col">
                 ${data.upiQrCodeUrl ? `<img src="${data.upiQrCodeUrl}" style="width: 44px; height: 44px; margin: 2px auto 0; display: block;" alt="Pay via UPI">` : ''}
-                <div class="signature">Authorised Signatory</div>
+                <div class="signature-wrap">
+                  <div style="font-family: 'Brush Script MT', cursive; font-size: 18px; font-weight: normal; padding-bottom: 2px; color: #111;">Anubhav Shukla</div>
+                  <div class="signature">Authorised Signatory</div>
+                </div>
               </div>
 
               ${totalsHtml}
