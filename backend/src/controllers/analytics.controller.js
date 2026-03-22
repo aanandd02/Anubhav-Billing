@@ -41,7 +41,7 @@ const getAnalytics = async (req, res) => {
     // 4. Top 5 Medicines
     const topMedicinesPromise = Bill.aggregate([
       { $unwind: "$items" },
-      { $group: { _id: "$items.productName", totalSold: { $sum: { $toDouble: { $ifNull: ["$items.quantity", 0] } } } } },
+      { $group: { _id: "$items.name", totalSold: { $sum: { $toDouble: { $ifNull: ["$items.quantity", 0] } } } } },
       { $sort: { totalSold: -1 } },
       { $limit: 5 }
     ]);

@@ -101,6 +101,7 @@ function Dashboard() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfBlob, setPdfBlob] = useState(null);
   const [showPdfPopup, setShowPdfPopup] = useState(false);
+  const [generatedBillNo, setGeneratedBillNo] = useState('');
 
   const fetchNextBillNo = async () => {
     try {
@@ -296,6 +297,15 @@ function Dashboard() {
       const url = URL.createObjectURL(blob);
       setPdfBlob(blob);
       setPdfUrl(url);
+      setGeneratedBillNo(form.billNo);
+
+      // Auto-reset form state in background
+      setForm(DEFAULT_FORM);
+      setItems(Array.from({ length: 5 }, () => blankItem()));
+      localStorage.removeItem('invoice_form');
+      localStorage.removeItem('invoice_items');
+      fetchNextBillNo();
+
       setShowPdfPopup(true);
     } catch (err) {
       alert(err.message);
@@ -741,13 +751,13 @@ function Dashboard() {
             <h3 className="pdf-popup-title">PDF Generated Successfully!</h3>
             <p className="pdf-popup-desc">Your invoice is ready to be downloaded or printed.</p>
             <div className="pdf-popup-actions">
-              <a href={pdfUrl} download={`Medical-Bill-${form.billNo || 'invoice'}.pdf`} className="pdf-btn-download" onClick={() => setShowPdfPopup(false)}>
+              <a href={pdfUrl} download={`Medical-Bill-${generatedBillNo || 'invoice'}.pdf`} className="pdf-btn-download" onClick={() => setShowPdfPopup(false)}>
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Download PDF
               </a>
-              <button className="pdf-btn-new" onClick={() => { setShowPdfPopup(false); setPdfUrl(null); setPdfBlob(null); setForm(DEFAULT_FORM); fetchNextBillNo(); setItems(Array.from({ length: 5 }, () => blankItem())); }}>
+              <button className="pdf-btn-new" onClick={() => { setShowPdfPopup(false); setPdfUrl(null); setPdfBlob(null); }}>
                 Create New Bill
               </button>
             </div>
