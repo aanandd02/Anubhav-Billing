@@ -35,8 +35,8 @@ function Login() {
       if (!res.ok) {
         throw new Error(data.error || 'Authentication failed. Please try again.');
       }
-      localStorage.removeItem('invoice_form');
-      localStorage.removeItem('invoice_items');
+      sessionStorage.removeItem('invoice_form');
+      sessionStorage.removeItem('invoice_items');
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);

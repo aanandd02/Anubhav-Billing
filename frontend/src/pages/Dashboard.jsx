@@ -5,7 +5,7 @@ const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
   "https://anubhav-billing-1jso.onrender.com";
 
-const DEFAULT_FORM = {
+const getDefaultForm = () => ({
   storeName: 'KRISHNA MEDICAL STORE',
   storeTagline: 'Shop No. CP-1, LGF-22, Jeevan Plaza',
   storeAddress: 'Vipul Khand-2, Gomti Nagar, Lucknow - 226010',
@@ -28,7 +28,7 @@ const DEFAULT_FORM = {
   doctorName: '',
   prescription: '',
   footerNote: ''
-};
+});
 
 const blankItem = () => ({
   productName: '',
@@ -72,14 +72,14 @@ function computeAmount(item) {
 function Dashboard() {
   const navigate = useNavigate();
   const [form, setForm] = useState(() => {
-    const saved = localStorage.getItem('invoice_form');
+    const saved = sessionStorage.getItem('invoice_form');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return DEFAULT_FORM;
+    return getDefaultForm();
   });
   const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('invoice_items');
+    const saved = sessionStorage.getItem('invoice_items');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -88,11 +88,11 @@ function Dashboard() {
   });
 
   useEffect(() => {
-    localStorage.setItem('invoice_form', JSON.stringify(form));
+    sessionStorage.setItem('invoice_form', JSON.stringify(form));
   }, [form]);
 
   useEffect(() => {
-    localStorage.setItem('invoice_items', JSON.stringify(items));
+    sessionStorage.setItem('invoice_items', JSON.stringify(items));
   }, [items]);
   const [userName, setUserName] = useState('Administrator');
   const [generating, setGenerating] = useState(false);
@@ -114,7 +114,7 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('invoice_form');
+    const saved = sessionStorage.getItem('invoice_form');
     let hasSavedBillNo = false;
     if (saved) {
       try {
@@ -300,10 +300,10 @@ function Dashboard() {
       setGeneratedBillNo(form.billNo);
 
       // Auto-reset form state in background
-      setForm(DEFAULT_FORM);
+      setForm(getDefaultForm());
       setItems(Array.from({ length: 5 }, () => blankItem()));
-      localStorage.removeItem('invoice_form');
-      localStorage.removeItem('invoice_items');
+      sessionStorage.removeItem('invoice_form');
+      sessionStorage.removeItem('invoice_items');
       fetchNextBillNo();
 
       setShowPdfPopup(true);
@@ -349,13 +349,13 @@ function Dashboard() {
 
   const handleReset = (force = false) => {
     if (!force && !window.confirm('Reset all fields?')) return;
-    setForm(DEFAULT_FORM);
+    setForm(getDefaultForm());
     setItems(Array.from({ length: 5 }, () => blankItem()));
     setPdfUrl(null);
     setPdfBlob(null);
     setShowPdfPopup(false);
-    localStorage.removeItem('invoice_form');
-    localStorage.removeItem('invoice_items');
+    sessionStorage.removeItem('invoice_form');
+    sessionStorage.removeItem('invoice_items');
     fetchNextBillNo();
   };
 
