@@ -293,8 +293,8 @@ function generateMedicalBillHTML(data) {
               <div class="sign-col">
                 ${data.upiQrCodeUrl ? `<img src="${data.upiQrCodeUrl}" style="width: 44px; height: 44px; margin: 2px auto 0; display: block;" alt="Pay via UPI">` : ''}
                 <div class="signature-wrap">
-                  <div style="font-family: 'Brush Script MT', cursive; font-size: 18px; font-weight: normal; padding-bottom: 2px; color: #111;">Anubhav Shukla</div>
-                  <div class="signature">Authorised Signatory</div>
+                  <div style="font-family: 'Great Vibes', cursive; font-size: 22px; font-weight: normal; padding-bottom: 2px; color: #111;">Anubhav Shukla</div>
+                  <div class="signature">Signatory</div>
                 </div>
               </div>
 
@@ -312,6 +312,7 @@ function generateMedicalBillHTML(data) {
 <html>
 <head>
   <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
   <style>
     @page { size: A4; margin: 0; }
 
