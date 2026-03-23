@@ -491,11 +491,11 @@ function Records() {
                         <td data-label="Patient Name">{bill.patient?.name || 'Unknown'}</td>
                         <td data-label="Mobile">{bill.patient?.phone || '-'}</td>
                         <td data-label="Amount">₹ {bill.finalTotal?.toFixed(2) || '0.00'}</td>
-                        <td data-label="Actions">
-                          <button className="btn btn-sm btn-primary" onClick={() => handleEdit(bill._id)} style={{ marginRight: '8px' }}>
+                        <td style={{ display: 'flex', gap: '8px' }}>
+                          <button className="btn btn-sm btn-primary" onClick={() => handleEdit(bill._id)} style={{ flex: 1, margin: 0 }}>
                             Edit / View
                           </button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(bill._id, bill.invoiceNumber)}>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(bill._id, bill.invoiceNumber)} style={{ flex: 1, margin: 0 }}>
                             Delete
                           </button>
                         </td>
@@ -543,11 +543,11 @@ function Records() {
                         <td data-label="Batch No">{med.batchNo || '-'}</td>
                         <td data-label="Expiry">{med.exp || '-'}</td>
                         <td data-label="Stock">{med.stock || 0}</td>
-                        <td data-label="Actions">
-                          <button className="btn btn-sm btn-primary" onClick={() => setEditingMed(med)} style={{ marginRight: '8px' }}>
+                        <td style={{ display: 'flex', gap: '8px' }}>
+                          <button className="btn btn-sm btn-primary" onClick={() => setEditingMed(med)} style={{ flex: 1, margin: 0 }}>
                             Edit
                           </button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleMedDelete(med._id, med.name)}>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleMedDelete(med._id, med.name)} style={{ flex: 1, margin: 0 }}>
                             Delete
                           </button>
                         </td>
@@ -589,11 +589,11 @@ function Records() {
                            <td data-label="Mobile">{p.phone || '-'}</td>
                            <td data-label="Address">{p.address || '-'}</td>
                            <td data-label="Created On">{new Date(p.createdAt).toLocaleDateString('en-GB')}</td>
-                           <td data-label="Action">
-                              <button className="btn btn-sm btn-primary" onClick={() => { setSelectedPatient(p); loadPatientHistory(p._id); }} style={{ marginRight: '8px' }}>
+                           <td style={{ display: 'flex', gap: '8px' }}>
+                              <button className="btn btn-sm btn-primary" onClick={() => { setSelectedPatient(p); loadPatientHistory(p._id); }} style={{ flex: 1, margin: 0 }}>
                                 View History
                               </button>
-                              <button className="btn btn-sm btn-danger" onClick={() => handlePatDelete(p._id, p.name)}>
+                              <button className="btn btn-sm btn-danger" onClick={() => handlePatDelete(p._id, p.name)} style={{ flex: 1, margin: 0 }}>
                                 Delete
                               </button>
                            </td>
