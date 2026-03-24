@@ -8,7 +8,9 @@ import { useDarkMode } from '../hooks/useDarkMode.js';
 
 const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
-  "https://anubhav-billing-1jso.onrender.com";
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://anubhav-billing-1jso.onrender.com');
 
 // Helper: classify medicine expiry
 function getExpiryClass(exp) {

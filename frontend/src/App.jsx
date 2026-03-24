@@ -6,7 +6,9 @@ import Records from './pages/Records.jsx';
 
 const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
-  'https://anubhav-billing-1jso.onrender.com';
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://anubhav-billing-1jso.onrender.com');
 
 function ProtectedRoute({ element: Element }) {
   const navigate = useNavigate();
