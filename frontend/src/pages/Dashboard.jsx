@@ -388,7 +388,7 @@ function Dashboard() {
         <div className="brand">
           <img src="/Anubhav.png" alt="Anubhav Billing logo" className="brand-logo" />
           <div className="brand-text">
-            <h1>Anubhav Medical Billing</h1>
+            <h1>Anubhav Billing</h1>
             <p>VIP Production Build ✨</p>
           </div>
         </div>
