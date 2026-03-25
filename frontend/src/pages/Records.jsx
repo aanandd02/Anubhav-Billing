@@ -686,8 +686,8 @@ function Records() {
                           </span>
                         </td>
                         <td data-label="Stock">
-                          <span className={med.stock && med.stock < 20 ? 'stock-low' : 'stock-ok'}>
-                            {med.stock || 0}
+                          <span className={med.stock < 20 ? 'stock-low' : 'stock-ok'}>
+                            {med.stock === 0 ? 'Out of Stock' : med.stock}
                           </span>
                         </td>
                         <td style={{ display: 'flex', gap: '8px' }}>
