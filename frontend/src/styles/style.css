@@ -595,36 +595,38 @@ tbody td input {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 6px;
-    flex-wrap: nowrap !important;
+    gap: 8px;
+    flex-wrap: wrap !important; /* Allow wrap to prevent overlap */
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
   }
 
   .brand {
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
-    flex-shrink: 1;
+    flex: 1; /* Allow brand to take available space */
     display: flex;
     align-items: center;
   }
 
   .brand-logo {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     flex-shrink: 0;
   }
 
   .brand h1 {
-    font-size: 18px;
+    font-size: 20px;
     letter-spacing: -0.4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
+    max-width: 140px; /* Prevent it from pushing common UI out */
   }
 
   .brand p {
@@ -632,21 +634,20 @@ tbody td input {
   }
 
   .toolbar-right {
-    gap: 6px;
-    flex-wrap: nowrap !important;
-    width: auto !important;
-    flex-shrink: 0;
+    gap: 4px;
+    flex-wrap: wrap !important; /* Allow buttons to wrap if they don't fit */
+    justify-content: flex-end;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
 
   .toolbar-right .btn {
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    height: 32px;
-    border-radius: 8px;
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 700;
+    height: 28px;
+    border-radius: 6px;
     min-width: 0;
   }
 
