@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import Records from './pages/Records.jsx';
 import { API_BASE } from './config.js';
+import PageLoader from './components/PageLoader.jsx';
 
 function ProtectedRoute({ element: Element }) {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ function ProtectedRoute({ element: Element }) {
     };
   }, [navigate]);
 
-  if (!authReady) return null; // Or a very subtle loading indicator
+  if (!authReady) return <PageLoader />;
   return <Element />;
 }
 
@@ -77,8 +78,8 @@ function LoginGate() {
     };
   }, [navigate]);
 
-  if (!authChecked) return null;
-  if (authed) return null; 
+  if (!authChecked) return <PageLoader />;
+  if (authed) return <PageLoader />; 
   return <Login />;
 }
 
